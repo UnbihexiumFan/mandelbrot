@@ -17,9 +17,9 @@ n_steps = 4*step
 step_size = size/n_steps
 
 try:
-    iters = int(input("Number of iterations (default 1000): "))
+    iters = int(input("Number of iterations (default 200): "))
 except:
-    iters = 1000
+    iters = 200
 
 sys.setrecursionlimit(max(1024, iters))
 
@@ -55,9 +55,9 @@ except:
 if cols not in [0, 1]:
     cols = 0
 
-zoom = 8
-cam_x = -0.5
-cam_y = -0.5
+zoom = 1
+cam_x = 0
+cam_y = 0
 
 _i = sqrt(-1)
 
