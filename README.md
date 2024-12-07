@@ -41,6 +41,9 @@ Controls whether or not the screen is updated mid-render. Always treated as 0/`F
 ## Controls
 
 Move - WASD
+
 Zoom in/out- C/Z (respectively)
+
 Refresh screen- R (NOTE: SCREEN WILL NOT RE-RENDER UNTIL THIS KEY IS PRESSED)
+
 Home (set to default view)- H
