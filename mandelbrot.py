@@ -9,17 +9,17 @@ except:
     size = 800
 
 try:
-    step = int(input("Number of points per unit (default 100): "))
+    step = int(input("Number of points per unit (default 25): "))
 except:
-    step = 100
+    step = 25
 
 n_steps = 4*step
 step_size = size/n_steps
 
 try:
-    iters = int(input("Number of iterations (default 200): "))
+    iters = int(input("Number of iterations (default 1000): "))
 except:
-    iters = 200
+    iters = 1000
 
 sys.setrecursionlimit(max(1024, iters))
 
@@ -55,6 +55,14 @@ except:
 if cols not in [0, 1]:
     cols = 0
 
+try:
+    upd_ = int(input("Update while rendering (0 = no, 1 = yes): "))
+except:
+    upd_ = 0
+
+if upd_ not in [0, 1]:
+    upd_ = 0
+
 zoom = 1
 cam_x = 0
 cam_y = 0
@@ -74,15 +82,14 @@ def z(c, x):
     else:
         return None
 
-def mand(c, n):
+def mand(c, n, x=0):
     if n > 0:
-        return z(c, mand(c, n-1))
+        return z(c, mand(c, n-1, x))
     else:
-        return z(c, 0)
+        return z(c, x)
 
-t1 = time.perf_counter()
-
-def render():
+def render(upd=False):
+    cv.delete("all")
     for x__ in range(-2*step, 2*step):
         x = x__/(step*zoom)+cam_x
         for y__ in range(-2*step, 2*step):
@@ -111,22 +118,70 @@ def render():
             else:
                 color = "#fff"
             cv.create_rectangle(x_, y_, x_ + step_size, y_ + step_size, fill=color, outline="")
-        tk.update()
+        if upd:        
+            tk.update()
+    if cols == 1:
+        for i in range(1,n_cycle+1):
+            cv.create_text(5, (font_size+2)*i+(5-font_size), anchor="nw", text=str(i)+"-cycle", fill=cycle_cols[i], font=("Small Fonts", font_size, "bold"))
+        i += 1
+        cv.create_text(5, (font_size+2)*i+(5-font_size), anchor="nw", text="Higher order cycle", fill=cycle_cols[i], font=("Small Fonts", font_size, "bold"))
+    cv.create_text(size-5, 5, anchor="ne", text=str(cam_x)+"+"+str(cam_y)+"i", fill="#666", font=("Small Fonts", font_size, "bold"))
+    cv.create_text(size-5, 7+font_size, anchor="ne", text="Zoom: 2^"+str(int(abs(log(zoom,2)))), fill="#666", font=("Small Fonts", font_size, "bold"))
+    tk.update()
 
-render()
 
-if cols == 1:
-    for i in range(1,n_cycle+1):
-        cv.create_text(5, (font_size+2)*i+(5-font_size), anchor="nw", text=str(i)+"-cycle", fill=cycle_cols[i], font=("Small Fonts", font_size, "bold"))
-    i += 1
-    cv.create_text(5, (font_size+2)*i+(5-font_size), anchor="nw", text="Higher order cycle", fill=cycle_cols[i], font=("Small Fonts", font_size, "bold"))
+t1 = time.perf_counter()
 
-tk.update()
+render(True)
 
 print("Done! :D")
 
 t2 = time.perf_counter()
 print(t2-t1)
+
+def z_in(event=None):
+    global zoom
+    zoom *= 2
+
+def z_out(event=None):
+    global zoom
+    zoom /= 2
+
+def c_left(event=None):
+    global cam_x
+    cam_x -= 2/zoom
+
+def c_right(event=None):
+    global cam_x
+    cam_x += 2/zoom
+
+def c_up(event=None):
+    global cam_y
+    cam_y += 2/zoom
+
+def c_down(event=None):
+    global cam_y
+    cam_y -= 2/zoom
+
+def home(event=None):
+    global cam_x
+    global cam_y
+    global zoom
+    cam_y = 0
+    cam_x = 0
+    zoom = 1
+
+def refresh(event=None):
+    render(upd_)
+
+tk.bind("c", z_in)
+tk.bind("z", z_out)
+tk.bind("a", c_left)
+tk.bind("d", c_right)
+tk.bind("w", c_up)
+tk.bind("s", c_down)
+tk.bind("h", home)
+tk.bind("r", refresh)
 
 while True:
     tk.update()
