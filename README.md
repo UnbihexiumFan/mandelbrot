@@ -28,7 +28,7 @@ The number of points rendered per unit on default zoom. For example, if set to 2
 
 ### Number of iterations
 
-The number of times z<sub>c</sub> is applied to x.
+The number of times z<sub>c</sub> is applied to x. When setting a high # of iterations, it's best to have a low points per unit so that it doesn't lag super hard, if you want to do any exploring..
 
 ### Coloring
 
