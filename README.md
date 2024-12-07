@@ -44,6 +44,6 @@ Move - WASD
 
 Zoom in/out- C/Z (respectively)
 
-Refresh screen- R ==(NOTE: SCREEN WILL NOT RE-RENDER UNTIL THIS KEY IS PRESSED)==
+Refresh screen- R _**(NOTE: SCREEN WILL NOT RE-RENDER UNTIL THIS KEY IS PRESSED)**_
 
 Home (set to default view)- H
