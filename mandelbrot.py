@@ -79,6 +79,14 @@ except:
 if upd_ not in [0, 1]:
     upd_ = 0
 
+try:
+    reload = int(input("Reload camera upon changing settings (0 = no, 1 = yes): "))
+except:
+    reload = 0
+
+if reload not in [0, 1]:
+    reload = 0
+
 zoom = 1
 cam_x = 0
 cam_y = 0
@@ -167,26 +175,38 @@ print(t2-t1)
 def z_in(event=None):
     global zoom
     zoom *= 2
+    if reload:
+        refresh()
 
 def z_out(event=None):
     global zoom
     zoom /= 2
+    if reload:
+        refresh()
 
 def c_left(event=None):
     global cam_x
     cam_x -= 2/zoom
+    if reload:
+        refresh()
 
 def c_right(event=None):
     global cam_x
     cam_x += 2/zoom
+    if reload:
+        refresh()
 
 def c_up(event=None):
     global cam_y
     cam_y += 2/zoom
+    if reload:
+        refresh()
 
 def c_down(event=None):
     global cam_y
     cam_y -= 2/zoom
+    if reload:
+        refresh()
 
 def home(event=None):
     global cam_x
@@ -199,7 +219,7 @@ def home(event=None):
 
 def refresh(event=None):
     print("Refreshing...")
-    render(True)
+    render(upd_)
     print("Done!")
 
 tk.bind("c", z_in)
