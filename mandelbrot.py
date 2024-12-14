@@ -44,15 +44,31 @@ cycle_cols = {
     16:"#306",
     }
 
+escape_times = [5, 10, 20, 35, 50, 75, 100, 200, 500]
+escape_time_cols = {
+    0:"#fff",
+    1:"#eee",
+    2:"#ddd",
+    3:"#ccc",
+    4:"#bbb",
+    5:"#aaa",
+    6:"#999",
+    7:"#888",
+    8:"#777",
+    9:"#666",
+    10:"#555",
+    11:"#444",
+    }
+
 cycle_cols[n_cycle+1] = "#000"
 font_size = 10
 
 try:
-    cols = int(input("Coloring (0 = none, 1 = cycles): "))
+    cols = int(input("Coloring (0 = none, 1 = cycles, 2 = escape time): "))
 except:
     cols = 0
 
-if cols not in [0, 1]:
+if cols not in [0, 1, 2]:
     cols = 0
 
 try:
@@ -67,45 +83,51 @@ zoom = 1
 cam_x = 0
 cam_y = 0
 
-_i = sqrt(-1)
-
 tk = Tk()
 cv = Canvas(tk, width=size, height=size)
 cv.pack()
 tk.update()
 
-def z(c, x):
+def mand(c, n, x_init=0):
+    x = x_init
     if x != None:
-        n = x*x + c
-        if abs(n) < 2:
-            return n
+        for i in range(n):
+            x = x*x + c
+            if abs(x) > 2:
+                return None
     else:
         return None
-
-def mand(c, n, x=0):
-    if n > 0:
-        return z(c, mand(c, n-1, x))
-    else:
-        return z(c, x)
+    return x
 
 def render(upd=False):
     cv.delete("all")
+    if cols == 2:
+        using_times = escape_times
+        for i in using_times:
+            if i == iters:
+                using_times.pop(using_times.index(i))
+        using_times.append(iters)
     for x__ in range(-2*step, 2*step):
         x = x__/(step*zoom)+cam_x
         for y__ in range(-2*step, 2*step):
             y = y__/(step*zoom)-cam_y
-            c = x + y*_i
+            c = x + y*1j
             x_ = ((x__/step)+2)*step_size*step
             y_ = ((y__/step)+2)*step_size*step
-            vals = [mand(c, iters-n_cycle)]
             if cols == 1:
+                vals = [mand(c, iters-n_cycle)]
                 if vals != [None]:
                     for i in range(n_cycle):
                         vals.append(z(c,vals[-1]))
-            if vals[-1] == None:
-                vals = [10]
+            elif cols == 2:
+                vals = [mand(c, using_times[0])]
+                for i in range(1, len(using_times)):
+                    incr = using_times[i]-using_times[i-1]
+                    vals.append(mand(c, incr, vals[-1]))
+            else:
+                vals = [mand(c, iters-n_cycle)]
             cycle = n_cycle+1
-            if abs(vals[-1]) < 2:
+            if vals[-1] != None:
                 if cols == 1: # cycle coloring
                     for i in range(1, len(vals)):
                         if cycle > n_cycle:
@@ -113,10 +135,13 @@ def render(upd=False):
                             if abs(vals[0]-val) < loop_thresh:
                                 cycle = i
                     color = cycle_cols[cycle]
-                if cols == 0:
+                else:
                     color = "#000"
             else:
-                color = "#fff"
+                if cols == 2:
+                    color = escape_time_cols[vals.index(None)]
+                else:
+                    color = "#fff"
             cv.create_rectangle(x_, y_, x_ + step_size, y_ + step_size, fill=color, outline="")
         if upd:        
             tk.update()
@@ -170,9 +195,12 @@ def home(event=None):
     cam_y = 0
     cam_x = 0
     zoom = 1
+    refresh()
 
 def refresh(event=None):
-    render(upd_)
+    print("Refreshing...")
+    render(True)
+    print("Done!")
 
 tk.bind("c", z_in)
 tk.bind("z", z_out)
